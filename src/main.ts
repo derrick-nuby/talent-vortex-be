@@ -11,6 +11,16 @@ async function bootstrap() {
     .setTitle('Talent Vortex API')
     .setDescription('Talent API description')
     .setVersion('1.0')
+    .addServer('http://localhost:3000', 'Local Development Server')
+    .addServer('', 'Production Server')
+    .addBearerAuth({
+      type: 'http',
+      scheme: 'bearer',
+      bearerFormat: 'JWT',
+      name: 'JWT',
+      description: 'Enter JWT Token',
+      in: 'header'
+    }, 'JWT-auth')
     .build()
 
   const documentFactory = () => SwaggerModule.createDocument(app, config);
