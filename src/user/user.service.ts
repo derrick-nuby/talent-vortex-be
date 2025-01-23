@@ -7,6 +7,7 @@ import { Model } from "mongoose";
 import * as bcrypt from "bcrypt";
 import { v4 as uuidV4 } from "uuid";
 import { MailService } from "../mail/mail.service";
+import { encrypt } from "../utils/crypto.util";
 
 @Injectable()
 export class UserService {
@@ -22,6 +23,7 @@ export class UserService {
     const hashedPassword = await bcrypt.hash(createUserDto.password, saltRounds);
 
     const verificationToken = uuidV4();
+    const encryptedToken = encrypt(verificationToken);
 
     try {
       const existingUser = await this.userModel.findOne({ email: createUserDto.email }).exec();
@@ -35,7 +37,11 @@ export class UserService {
         verificationToken,
       });
 
-      await this.mailService.sendVerificationEmail(user.email, user.firstName, verificationToken);
+      await this.mailService.sendVerificationEmail
+      (user.email,
+        user.firstName,
+        encryptedToken
+      );
 
       return {
         firstName: user.firstName,
