@@ -7,9 +7,14 @@ import { JwtModule } from "@nestjs/jwt";
 import { ConfigModule, ConfigService } from "@nestjs/config";
 import { MailModule } from "../mail/mail.module";
 import { JwtAuthGuard } from "./guards/jwt.auth.guard";
+import { JwtStrategy } from "./strategies/jwt.strategy";
+import { RolesGuard } from "./guards/roles.guard";
 
 @Module({
   imports: [
+    ConfigModule.forRoot({
+      isGlobal: true
+    }),
     MongooseModule.forFeature([{ name: User.name, schema: UserSchema }]),
     JwtModule.registerAsync({
       imports: [ConfigModule],
@@ -25,7 +30,7 @@ import { JwtAuthGuard } from "./guards/jwt.auth.guard";
     }),
     MailModule
   ],
-  providers: [AuthService, JwtAuthGuard],
+  providers: [AuthService, JwtAuthGuard, JwtStrategy, RolesGuard],
   controllers: [AuthController],
 })
 export class AuthModule {}
