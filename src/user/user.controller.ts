@@ -1,4 +1,4 @@
-import { Body, Controller, Delete, Get, Param, Patch, Post, UseGuards } from "@nestjs/common";
+import { Body, Controller, Delete, Get, Param, Patch, Post, Query, UseGuards } from "@nestjs/common";
 import { UserService } from "./user.service";
 import { CreateUserDto } from "./dto/create-user.dto";
 import { UpdateUserDto } from "./dto/update-user.dto";
@@ -7,6 +7,7 @@ import { UserRole } from "./enums/UserRole";
 import { JwtAuthGuard } from "../auth/guards/jwt.auth.guard";
 import { Roles } from "../auth/decorators/roles.decorator";
 import { RolesGuard } from "../auth/guards/roles.guard";
+import { QueryUserDto } from "./dto/query-user.dto";
 
 @ApiTags('Users')
 @Controller('users')
@@ -45,11 +46,11 @@ export class UserController {
   @ApiOperation({ summary: 'Get all users' })
   @Roles(UserRole.ADMIN, UserRole.SUB_ADMIN, UserRole.FACILITATOR)
   @UseGuards(JwtAuthGuard, RolesGuard)
-  async findAll() {
-    const users = await this.userService.findAll();
+  async findAll(@Query() queryDto: QueryUserDto) {
+    const result = await this.userService.findAll(queryDto);
     return {
       message: 'Users retrieved successfully',
-      users: users
+      ...result
     }
   }
 

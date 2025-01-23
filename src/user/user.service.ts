@@ -3,11 +3,12 @@ import { CreateUserDto } from "./dto/create-user.dto";
 import { UpdateUserDto } from "./dto/update-user.dto";
 import { InjectModel } from "@nestjs/mongoose";
 import { User } from "./schemas/user.schema";
-import { Model } from "mongoose";
+import { Model, PipelineStage } from "mongoose";
 import * as bcrypt from "bcrypt";
 import { v4 as uuidV4 } from "uuid";
 import { MailService } from "../mail/mail.service";
 import { encrypt } from "../utils/crypto.util";
+import { QueryUserDto, SortOrder, UserSortField } from "./dto/query-user.dto";
 
 @Injectable()
 export class UserService {
@@ -55,8 +56,60 @@ export class UserService {
 
   }
 
-  async findAll():Promise<User[]> {
-    return this.userModel.find().select('-password').exec();
+  async findAll(queryDto: QueryUserDto) {
+    const {
+      page = 1,
+      limit = 10,
+      search,
+      role,
+      sortField = UserSortField.CREATED_AT,
+      sortOrder = SortOrder.DESC
+    } = queryDto;
+
+    const query: Record<string, any> = {};
+
+    if (search) {
+      query.$or = [
+        { firstName: { $regex: `^${search}`, $options: 'i' } },
+        { lastName: { $regex: `^${search}`, $options: 'i' } },
+        { email: { $regex: `^${search}`, $options: 'i' } }
+      ];
+    }
+
+    if (role) {
+      query.role = role;
+    }
+
+    const pipeline: PipelineStage[] = [
+      { $match: query },
+      { $sort: { [sortField]: sortOrder === SortOrder.ASC ? 1 : -1 } },
+      { $skip: (page - 1) * limit },
+      { $limit: limit },
+      { $project: { password: 0 } },
+      {
+        $facet: {
+          users: [],
+          totalCount: [
+            { $count: 'count' }
+          ]
+        }
+      }
+    ];
+
+    const [result] = await this.userModel.aggregate(pipeline).exec();
+
+    const users = result.users;
+    const totalUsers = result.totalCount[0]?.count || 0;
+
+    return {
+      users,
+      pagination: {
+        currentPage: page,
+        itemsPerPage: limit,
+        totalItems: totalUsers,
+        totalPages: Math.ceil(totalUsers / limit)
+      }
+    };
   }
 
   async findOne(id: string): Promise<User> {
