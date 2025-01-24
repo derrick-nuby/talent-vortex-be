@@ -29,17 +29,11 @@ export class CategoryService {
     return category.save();
   }
 
-  async findAll(page = 1, limit = 10): Promise<{ categories: Category[], total: number }> {
-    const skip = (page - 1) * limit;
-    const total = await this.categoryModel.countDocuments().exec();
-    const categories = await this.categoryModel
+  async findAll(): Promise<Category[]> {
+    return this.categoryModel
       .find()
-      .skip(skip)
-      .limit(limit)
       .sort({ createdAt: -1 })
-      .select('-__v').exec();
-
-    return { categories, total };
+      .select('-__v');
   }
 
   async findOne(id: string): Promise<Category> {

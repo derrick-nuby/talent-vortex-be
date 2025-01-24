@@ -22,49 +22,14 @@ export class CategoryController {
     return this.categoryService.create(createCategoryDto);
   }
 
-  @ApiOperation({ summary: 'Retrieve paginated categories' })
+  @Get()
+  @ApiOperation({ summary: 'Retrieve all categories' })
   @ApiResponse({
     status: 200,
-    description: 'List of categories with pagination metadata'
+    description: 'List of all categories'
   })
-  @ApiQuery({
-    name: 'page',
-    required: false,
-    default: 1,
-    type: Number,
-    description: 'Page number'
-  })
-  @ApiQuery({
-    name: 'limit',
-    required: false,
-    default: 10,
-    type: Number,
-    description: 'Number of items per page'
-  })
-  @Get()
-  async findAll(
-    @Query('page') page = 1,
-    @Query('limit') limit = 10
-  ): Promise<PaginationResponse<Category>> {
-    const { categories, total } = await this.categoryService.findAll(
-      Number(page),
-      Number(limit)
-    );
-
-    const totalPages = Math.ceil(total / limit);
-
-    return {
-      data: categories,
-      pagination: {
-        totalItems: total,
-        itemCount: categories.length,
-        itemsPerPage: limit,
-        totalPages,
-        currentPage: page,
-        hasNextPage: page < totalPages,
-        hasPreviousPage: page > 1
-      }
-    };
+  async findAll() {
+    return this.categoryService.findAll();
   }
 
 
