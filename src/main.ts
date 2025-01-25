@@ -1,8 +1,9 @@
-import { NestFactory } from '@nestjs/core';
+import { HttpAdapterHost, NestFactory } from "@nestjs/core";
 import { AppModule } from './app.module';
 import { DocumentBuilder, SwaggerModule } from "@nestjs/swagger";
 import * as process from "process";
 import { ValidationPipe } from "@nestjs/common";
+import { AllExceptionsFilter } from "./filters/all-exceptions.filter";
 
 async function bootstrap() {
 
@@ -42,8 +43,13 @@ async function bootstrap() {
   });
 
   app.useGlobalPipes(new ValidationPipe({
-    transform: true
+    transform: true,
+    whitelist: true,
+    forbidNonWhitelisted: true,
   }))
+
+  const httpAdapterHost = app.get(HttpAdapterHost);
+  app.useGlobalFilters(new AllExceptionsFilter(httpAdapterHost));
 
   await app.listen(process.env.PORT ?? 3000);
 
