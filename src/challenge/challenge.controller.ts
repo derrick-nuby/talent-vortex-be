@@ -3,7 +3,7 @@ import { CreateChallengeDto } from "./dto/create-challenge.dto";
 import { ApiOperation, ApiTags } from "@nestjs/swagger";
 import { ChallengeService } from "./challenge.service";
 import { Challenge } from "./schemas/challenge.schema";
-import { ParseObjectIdPipe } from "../category/pipes/parse-object-id.pipe";
+import { ParseObjectIdPipe } from "../pipes/parse-object-id.pipe";
 import UpdateChallengeDto from "./dto/update-challenge.dto";
 import { QueryChallengeDto } from "./dto/query.dto";
 import { CacheTTL } from "@nestjs/common/cache";

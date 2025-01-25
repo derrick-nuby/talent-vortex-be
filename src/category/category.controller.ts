@@ -2,7 +2,7 @@ import { Body, Controller, Delete, Get, HttpCode, HttpStatus, Param, Patch, Post
 import CreateCategoryDto from "./dto/create-category.dto";
 import { CategoryService } from "./category.service";
 import UpdateCategoryDto from "./dto/update-category.dto";
-import { ParseObjectIdPipe } from "./pipes/parse-object-id.pipe";
+import { ParseObjectIdPipe } from "../pipes/parse-object-id.pipe";
 import { ApiOperation, ApiResponse, ApiTags } from "@nestjs/swagger";
 
 @Controller('categories')
