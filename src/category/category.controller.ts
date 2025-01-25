@@ -1,11 +1,9 @@
-import { Body, Controller, Delete, Get, HttpCode, HttpStatus, Param, Patch, Post, Query } from "@nestjs/common";
+import { Body, Controller, Delete, Get, HttpCode, HttpStatus, Param, Patch, Post } from "@nestjs/common";
 import CreateCategoryDto from "./dto/create-category.dto";
 import { CategoryService } from "./category.service";
 import UpdateCategoryDto from "./dto/update-category.dto";
 import { ParseObjectIdPipe } from "./pipes/parse-object-id.pipe";
-import { PaginationResponse } from "../types";
-import { Category } from "./schemas/category.schema";
-import { ApiOperation, ApiQuery, ApiResponse, ApiTags } from "@nestjs/swagger";
+import { ApiOperation, ApiResponse, ApiTags } from "@nestjs/swagger";
 
 @Controller('categories')
 @ApiTags('Challenge categories')
