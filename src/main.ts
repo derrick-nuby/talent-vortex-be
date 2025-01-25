@@ -1,8 +1,9 @@
-import { NestFactory } from "@nestjs/core";
+import { HttpAdapterHost, NestFactory } from "@nestjs/core";
 import { AppModule } from "./app.module";
 import { DocumentBuilder, SwaggerModule } from "@nestjs/swagger";
 import { ValidationPipe } from "@nestjs/common";
 import * as process from "process";
+import { AllExceptionsFilter } from "./filters/all-exceptions.filter";
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
@@ -14,6 +15,10 @@ async function bootstrap() {
     .setVersion('1.0')
     .addServer('http://localhost:3000', 'Local Development Server')
     .addServer('https://talent-vortex-be-v1.onrender.com', 'Production Server')
+    .addTag('Challenge categories')
+    .addTag('Challenges')
+    .addTag('Users')
+    .addTag('Authentication')
     .addBearerAuth({
       type: 'http',
       scheme: 'bearer',
@@ -42,6 +47,9 @@ async function bootstrap() {
   app.setGlobalPrefix(apiPrefix, {
     exclude: ['/']
   });
+
+  const httpAdapterHost = app.get(HttpAdapterHost);
+  app.useGlobalFilters(new AllExceptionsFilter(httpAdapterHost));
 
   await app.listen(process.env.PORT ?? 3000);
 }
