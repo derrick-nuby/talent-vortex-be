@@ -33,7 +33,7 @@ async function bootstrap() {
   SwaggerModule.setup('api-docs', app, documentFactory)
 
   app.enableCors({
-    origin: process.env.CORS_ORIGINS.split(',').map(origin => origin.trim()),
+    origin: (process.env.CORS_ORIGINS ?? 'http://localhost:3000').split(',').map(origin => origin.trim()),
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH'],
     allowedHeaders: ['Content-Type', 'Authorization'],
     credentials: true,
