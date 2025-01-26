@@ -1,4 +1,13 @@
-import { ArrayMinSize, IsArray, IsDate, IsEmail, IsNotEmpty, IsString, ValidateNested } from "class-validator";
+import {
+  ArrayMinSize,
+  IsArray,
+  IsDate,
+  IsEmail,
+  IsMongoId,
+  IsNotEmpty,
+  IsString,
+  ValidateNested,
+} from 'class-validator';
 import { Type } from "class-transformer";
 import { ApiProperty } from "@nestjs/swagger";
 import { PrizeDto } from "./prize.dto";
@@ -90,5 +99,6 @@ export class CreateChallengeDto {
   })
   @IsString()
   @IsNotEmpty()
-  category: string; // This will be the ID of the Category document
+  @IsMongoId({ message: 'Invalid MongoDB ID for category' })
+  category: string;
 }

@@ -22,6 +22,9 @@ export const PrizeSchema = SchemaFactory.createForClass(Prize);
 @Schema({ timestamps: true })
 export class Challenge extends Document {
 
+  @Prop({ required: true, unique: true, trim: true })
+  slug: string;
+
   @Prop({ required: true })
   title: string;
 

@@ -1,23 +1,41 @@
-import { Injectable, NotFoundException } from "@nestjs/common";
+import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
 import { InjectModel } from "@nestjs/mongoose";
 import { Challenge } from "./schemas/challenge.schema";
-import { Model, PipelineStage } from "mongoose";
+import { Model, PipelineStage, Types } from 'mongoose';
 import { CreateChallengeDto } from "./dto/create-challenge.dto";
 import UpdateChallengeDto from "./dto/update-challenge.dto";
 import { QueryChallengeDto } from "./dto/query.dto";
+import { Category } from '../category/schemas/category.schema';
+import { generateSlug } from '../utils';
 
 @Injectable()
 export class ChallengeService {
   @InjectModel(Challenge.name)
   private readonly challengeModel: Model<Challenge>
+  @InjectModel(Category.name)
+  private readonly categoryModel: Model<Category>
 
   async create(challengeDto: CreateChallengeDto): Promise<Challenge> {
-    try {
-      const newChallenge = new this.challengeModel(challengeDto);
-      return await newChallenge.save();
-    } catch (error) {
-      throw new Error(`Failed to create challenge: ${error.message}`);
+
+    if (!Types.ObjectId.isValid(challengeDto.category)) {
+      throw new BadRequestException(`Invalid category ID: ${challengeDto.category}`);
     }
+
+    const category = await this.categoryModel.findById(challengeDto.category).exec();
+    if(!category) {
+      throw new NotFoundException(`Category with id ${challengeDto.category} is not available`);
+    }
+
+    const slug = generateSlug(challengeDto.title);
+
+    const challenge = new this.challengeModel({
+      ...challengeDto,
+      slug,
+      category: challengeDto.category,
+    });
+
+    return challenge.save();
+
   }
 
 
@@ -62,6 +80,7 @@ export class ChallengeService {
           challenges: [
             {
               $project: {
+                slug: 1,
                 title: 1,
                 description: 1,
                 email: 1,
