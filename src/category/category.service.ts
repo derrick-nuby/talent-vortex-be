@@ -4,6 +4,7 @@ import { Model } from "mongoose";
 import { Category } from "./schemas/category.schema";
 import CreateCategoryDto from "./dto/create-category.dto";
 import UpdateCategoryDto from "./dto/update-category.dto";
+import { generateSlug } from '../utils';
 
 @Injectable()
 export class CategoryService {
@@ -11,7 +12,7 @@ export class CategoryService {
   private readonly categoryModel: Model<Category>
 
   async create(createCategoryDto: CreateCategoryDto): Promise<Category> {
-    const slug = this.generateSlug(createCategoryDto.name);
+    const slug = generateSlug(createCategoryDto.name);
 
     const existingCategory = await this.categoryModel.findOne({
       $or: [{ name: createCategoryDto.name }, { slug }]
@@ -54,7 +55,7 @@ export class CategoryService {
     }
 
     const slug = updateCategoryDto.name
-      ? this.generateSlug(updateCategoryDto.name)
+      ? generateSlug(updateCategoryDto.name)
       : existingCategory.slug;
 
     const duplicateCheck = await this.categoryModel.findOne({
@@ -84,15 +85,6 @@ export class CategoryService {
     }
 
     return category;
-  }
-
-  private generateSlug(name: string): string {
-    return name
-      .toLowerCase()
-      .trim()
-      .replace(/[^\w\s-]/g, '')
-      .replace(/[\s_-]+/g, '-')
-      .replace(/^-+|-+$/g, '');
   }
 
 
