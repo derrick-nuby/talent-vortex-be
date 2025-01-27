@@ -17,6 +17,7 @@ async function bootstrap() {
     .addServer('https://talent-vortex-be-v1.onrender.com', 'Production Server')
     .addTag('Challenge categories')
     .addTag('Challenges')
+    .addTag('Challenge Analytics')
     .addTag('Users')
     .addTag('Authentication')
     .addBearerAuth({
