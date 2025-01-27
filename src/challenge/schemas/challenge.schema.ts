@@ -58,7 +58,8 @@ export class Challenge extends Document {
   @Prop({
     type: String,
     enum: Object.values(ChallengeStatus),
-    default: ChallengeStatus.OPEN
+    default: ChallengeStatus.OPEN,
+    index: true
   })
   status: string;
 
