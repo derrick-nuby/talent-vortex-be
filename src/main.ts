@@ -16,6 +16,7 @@ async function bootstrap() {
     .addServer('http://localhost:3000', 'Local Development Server')
     .addServer('https://talent-vortex-be-v1.onrender.com', 'Production Server')
     .addTag('Challenge categories')
+    .addTag('Forms')
     .addTag('Challenges')
     .addTag('Challenge Analytics')
     .addTag('Users')
