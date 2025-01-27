@@ -8,12 +8,16 @@ import { Category, CategorySchema } from '../category/schemas/category.schema';
 import AnalyticsService from './analytics.service';
 import { CacheModule } from '@nestjs/cache-manager';
 import { AnalyticsController } from './analytics.controller';
+import { Form, FormSchema } from '../form/schemas/form.schema';
 
 @Module({
   imports: [
     CacheModule.register(),
-    MongooseModule.forFeature([{ name: Challenge.name, schema: ChallengeSchema }]),
-    MongooseModule.forFeature([{ name: Category.name, schema: CategorySchema }])
+    MongooseModule.forFeature([
+      { name: Challenge.name, schema: ChallengeSchema },
+      { name: Category.name, schema: CategorySchema },
+      { name: Form.name, schema: FormSchema }
+    ]),
   ],
   providers: [ChallengeService, ParseObjectIdPipe, AnalyticsService],
   controllers: [ChallengeController, AnalyticsController]

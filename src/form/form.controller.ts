@@ -15,7 +15,7 @@ export class FormController {
 
   @Post()
   @ApiOperation({ summary: 'Create a new form' })
-  async create(@Body() createFormDto: CreateFormDto): Promise<Form> {
+  async create(@Body() createFormDto: CreateFormDto): Promise<Pick<Form, '_id' | 'title'>> {
     return this.formService.create(createFormDto);
   }
 

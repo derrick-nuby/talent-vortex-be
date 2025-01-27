@@ -10,9 +10,12 @@ export class FormService {
   @InjectModel(Form.name)
   private readonly formModel: Model<Form>
 
-  async create(formDto: CreateFormDto): Promise<Form> {
-    const createdForm = new this.formModel(formDto);
-    return createdForm.save();
+  async create(formDto: CreateFormDto): Promise<Pick<Form, '_id' | 'title'>> {
+    const createdForm = await new this.formModel(formDto).save();
+    return {
+      _id: createdForm._id,
+      title: createdForm.title
+    };
   }
 
   async findOne(id: string): Promise<Form> {
