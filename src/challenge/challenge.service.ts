@@ -7,6 +7,7 @@ import UpdateChallengeDto from "./dto/update-challenge.dto";
 import { QueryChallengeDto } from "./dto/query.dto";
 import { Category } from '../category/schemas/category.schema';
 import { generateSlug } from '../utils';
+import { Form } from '../form/schemas/form.schema';
 
 @Injectable()
 export class ChallengeService {
@@ -14,11 +15,23 @@ export class ChallengeService {
   private readonly challengeModel: Model<Challenge>
   @InjectModel(Category.name)
   private readonly categoryModel: Model<Category>
+  @InjectModel(Form.name)
+  private readonly formModel: Model<Form>
 
   async create(challengeDto: CreateChallengeDto): Promise<Challenge> {
 
     if (!Types.ObjectId.isValid(challengeDto.category)) {
       throw new BadRequestException(`Invalid category ID: ${challengeDto.category}`);
+    }
+    
+    const applicationForm = await this.formModel.findById(challengeDto.applicationForm).exec();
+    if(!applicationForm) {
+      throw new NotFoundException(`Application form with id ${challengeDto.applicationForm} does not exist`)
+    }
+
+    const submissionForm = await this.formModel.findById(challengeDto.submissionForm).exec();
+    if(!submissionForm) {
+      throw new NotFoundException(`Submission form with id ${challengeDto.submissionForm} does not exist`)
     }
 
     const category = await this.categoryModel.findById(challengeDto.category).exec();
@@ -91,6 +104,8 @@ export class ChallengeService {
                 startDate: 1,
                 endDate: 1,
                 status: 1,
+                applicationForm: 1,
+                submissionForm: 1,
                 category: {
                   id: '$categoryDetails._id',
                   name: '$categoryDetails.name',

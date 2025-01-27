@@ -2,6 +2,7 @@ import { Document, Schema as MongooseSchema } from "mongoose";
 import { Prop, Schema, SchemaFactory } from "@nestjs/mongoose";
 import { ChallengeStatus } from "../enums/ChallengeStatus";
 import { Category } from "../../category/schemas/category.schema";
+import { Form } from '../../form/schemas/form.schema';
 
 @Schema({ _id: false })
 export class Prize {
@@ -65,6 +66,12 @@ export class Challenge extends Document {
 
   @Prop({ type: MongooseSchema.Types.ObjectId, ref: 'Category', required: true })
   category: Category;
+
+  @Prop({ type: MongooseSchema.Types.ObjectId, ref: 'Form', required: true })
+  applicationForm: Form;
+
+  @Prop({ type: MongooseSchema.Types.ObjectId, ref: 'Form', required: true })
+  submissionForm: Form;
 
 }
 

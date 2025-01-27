@@ -101,4 +101,23 @@ export class CreateChallengeDto {
   @IsNotEmpty()
   @IsMongoId({ message: 'Invalid MongoDB ID for category' })
   category: string;
+
+  @ApiProperty({
+    example: '64f8a1b2e4b0f5a3d8f8f8f9',
+    description: 'The ID of the application form for the challenge',
+  })
+  @IsString()
+  @IsNotEmpty()
+  @IsMongoId({ message: 'Invalid MongoDB ID for application form' })
+  applicationForm: string;
+
+  @ApiProperty({
+    example: '64f8a1b2e4b0f5a3d8f8f8fa',
+    description: 'The ID of the submission form for the challenge',
+  })
+  @IsString()
+  @IsNotEmpty()
+  @IsMongoId({ message: 'Invalid MongoDB ID for submission form' })
+  submissionForm: string;
+
 }
