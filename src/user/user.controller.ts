@@ -10,10 +10,7 @@ import { RolesGuard } from "../auth/guards/roles.guard";
 import { QueryUserDto } from "./dto/query-user.dto";
 
 @ApiTags('Users')
-@Controller({
-  version: '1',
-  path: 'users'
-})
+@Controller('users')
 export class UserController {
   constructor(private readonly userService: UserService) {}
 

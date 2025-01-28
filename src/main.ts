@@ -53,6 +53,7 @@ async function bootstrap() {
 
   app.enableVersioning({
     type: VersioningType.URI,
+    defaultVersion: '1'
   });
 
   const httpAdapterHost = app.get(HttpAdapterHost);

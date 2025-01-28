@@ -5,10 +5,7 @@ import { LoginDto } from "./dto/login.dto";
 import { RegisterDto } from "./dto/register.dto";
 
 @ApiTags("Authentication")
-@Controller({
-  version: '1',
-  path: 'auth'
-})
+@Controller('auth')
 export class AuthController {
 
   constructor(
