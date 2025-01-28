@@ -48,12 +48,12 @@ async function bootstrap() {
   }))
 
   app.setGlobalPrefix(apiPrefix, {
-    exclude: ['/']
+    exclude: ['/', 'api/v1']
   });
 
   app.enableVersioning({
     type: VersioningType.URI,
-    defaultVersion: '1'
+    defaultVersion: '1',
   });
 
   const httpAdapterHost = app.get(HttpAdapterHost);
