@@ -1,7 +1,7 @@
 import { HttpAdapterHost, NestFactory } from "@nestjs/core";
 import { AppModule } from "./app.module";
 import { DocumentBuilder, SwaggerModule } from "@nestjs/swagger";
-import { ValidationPipe } from "@nestjs/common";
+import { ValidationPipe, VersioningType } from '@nestjs/common';
 import * as process from "process";
 import { AllExceptionsFilter } from "./filters/all-exceptions.filter";
 
@@ -15,6 +15,7 @@ async function bootstrap() {
     .setVersion('1.0')
     .addServer('http://localhost:3000', 'Local Development Server')
     .addServer('https://talent-vortex-be-v1.onrender.com', 'Production Server')
+    .addTag('App')
     .addTag('Challenge categories')
     .addTag('Forms')
     .addTag('Challenges')
@@ -48,6 +49,10 @@ async function bootstrap() {
 
   app.setGlobalPrefix(apiPrefix, {
     exclude: ['/']
+  });
+
+  app.enableVersioning({
+    type: VersioningType.URI,
   });
 
   const httpAdapterHost = app.get(HttpAdapterHost);
