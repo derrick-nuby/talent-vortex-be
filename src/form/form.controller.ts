@@ -6,7 +6,10 @@ import { Form } from './schemas/form.schema';
 import { ParseObjectIdPipe } from '../pipes/parse-object-id.pipe';
 
 @ApiTags('Forms')
-@Controller('forms')
+@Controller({
+  version: '1',
+  path: 'forms'
+})
 export class FormController {
 
   constructor(

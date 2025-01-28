@@ -5,7 +5,10 @@ import { AnalyticsQueryDto } from './dto/analytics-query.dto';
 import { AnalyticsResponse, ChallengeOverviewResponse } from './inferfaces/analytics.interface';
 
 @ApiTags('Challenge Analytics')
-@Controller('analytics')
+@Controller({
+  version: '1',
+  path: 'analytics'
+})
 export class AnalyticsController {
 
   constructor(

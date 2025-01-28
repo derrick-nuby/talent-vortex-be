@@ -5,8 +5,11 @@ import UpdateCategoryDto from "./dto/update-category.dto";
 import { ParseObjectIdPipe } from "../pipes/parse-object-id.pipe";
 import { ApiOperation, ApiResponse, ApiTags } from "@nestjs/swagger";
 
-@Controller('categories')
 @ApiTags('Challenge categories')
+@Controller({
+  version: '1',
+  path: 'categories'
+})
 export class CategoryController {
 
   constructor(

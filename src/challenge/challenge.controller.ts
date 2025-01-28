@@ -1,15 +1,18 @@
-import { Body, Controller, Delete, Get, HttpCode, HttpStatus, Param, Post, Put, Query } from "@nestjs/common";
-import { CreateChallengeDto } from "./dto/create-challenge.dto";
-import { ApiOperation, ApiTags } from "@nestjs/swagger";
-import { ChallengeService } from "./challenge.service";
-import { Challenge } from "./schemas/challenge.schema";
-import { ParseObjectIdPipe } from "../pipes/parse-object-id.pipe";
-import UpdateChallengeDto from "./dto/update-challenge.dto";
-import { QueryChallengeDto } from "./dto/query.dto";
-import { CacheTTL } from "@nestjs/common/cache";
+import { Body, Controller, Delete, Get, HttpCode, HttpStatus, Param, Post, Put, Query } from '@nestjs/common';
+import { CreateChallengeDto } from './dto/create-challenge.dto';
+import { ApiOperation, ApiTags } from '@nestjs/swagger';
+import { ChallengeService } from './challenge.service';
+import { Challenge } from './schemas/challenge.schema';
+import { ParseObjectIdPipe } from '../pipes/parse-object-id.pipe';
+import UpdateChallengeDto from './dto/update-challenge.dto';
+import { QueryChallengeDto } from './dto/query.dto';
+import { CacheTTL } from '@nestjs/common/cache';
 
 @ApiTags('Challenges')
-@Controller('challenges')
+@Controller({
+  version: '1',
+  path: 'challenges'
+})
 export class ChallengeController {
 
   constructor(
