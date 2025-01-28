@@ -9,10 +9,7 @@ import { QueryChallengeDto } from './dto/query.dto';
 import { CacheTTL } from '@nestjs/common/cache';
 
 @ApiTags('Challenges')
-@Controller({
-  version: '1',
-  path: 'challenges'
-})
+@Controller('challenges')
 export class ChallengeController {
 
   constructor(

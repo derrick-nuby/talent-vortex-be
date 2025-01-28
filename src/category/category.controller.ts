@@ -6,10 +6,7 @@ import { ParseObjectIdPipe } from "../pipes/parse-object-id.pipe";
 import { ApiOperation, ApiResponse, ApiTags } from "@nestjs/swagger";
 
 @ApiTags('Challenge categories')
-@Controller({
-  version: '1',
-  path: 'categories'
-})
+@Controller('categories')
 export class CategoryController {
 
   constructor(
