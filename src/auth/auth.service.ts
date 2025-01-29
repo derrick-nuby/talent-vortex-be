@@ -113,7 +113,8 @@ export class AuthService {
       };
 
     }catch (error) {
-      throw new BadRequestException(`${error.message}`)
+      console.error('Full error:', error);
+      throw new BadRequestException(`Error: ${error.message}`)
     }
 
   }
