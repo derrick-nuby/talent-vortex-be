@@ -1,9 +1,9 @@
-import { Body, Controller, Delete, Get, HttpCode, HttpStatus, Param, Patch, Post } from "@nestjs/common";
-import CreateCategoryDto from "./dto/create-category.dto";
-import { CategoryService } from "./category.service";
-import UpdateCategoryDto from "./dto/update-category.dto";
-import { ParseObjectIdPipe } from "../pipes/parse-object-id.pipe";
-import { ApiOperation, ApiResponse, ApiTags } from "@nestjs/swagger";
+import { Body, Controller, Delete, Get, HttpCode, HttpStatus, Param, Patch, Post } from '@nestjs/common';
+import CreateCategoryDto from './dto/create-category.dto';
+import { CategoryService } from './category.service';
+import UpdateCategoryDto from './dto/update-category.dto';
+import { ParseObjectIdPipe } from '../pipes/parse-object-id.pipe';
+import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 
 @ApiTags('Challenge categories')
 @Controller('categories')
@@ -31,10 +31,10 @@ export class CategoryController {
   }
 
 
-  @ApiOperation({ summary: 'Retrieve a specific category by ID' })
-  @Get(':id')
-  async findOne(@Param('id', ParseObjectIdPipe) id: string) {
-    return this.categoryService.findOne(id);
+  @ApiOperation({ summary: 'Retrieve a category by ID or slug' })
+  @Get(':identifier')
+  async findOneOrSlug(@Param('identifier') identifier: string) {
+    return this.categoryService.findByIdentifier(identifier);
   }
 
   @ApiOperation({ summary: 'Update an existing category' })
