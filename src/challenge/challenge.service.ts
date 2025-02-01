@@ -1,10 +1,10 @@
 import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
-import { InjectModel } from "@nestjs/mongoose";
-import { Challenge } from "./schemas/challenge.schema";
+import { InjectModel } from '@nestjs/mongoose';
+import { Challenge } from './schemas/challenge.schema';
 import { Model, PipelineStage, Types } from 'mongoose';
-import { CreateChallengeDto } from "./dto/create-challenge.dto";
-import UpdateChallengeDto from "./dto/update-challenge.dto";
-import { QueryChallengeDto } from "./dto/query.dto";
+import { CreateChallengeDto } from './dto/create-challenge.dto';
+import UpdateChallengeDto from './dto/update-challenge.dto';
+import { QueryChallengeDto } from './dto/query.dto';
 import { Category } from '../category/schemas/category.schema';
 import { generateSlug } from '../utils';
 import { Form } from '../form/schemas/form.schema';
@@ -135,21 +135,34 @@ export class ChallengeService {
     };
   }
 
-  async findById(id: string): Promise<Challenge> {
-    try {
+  async findByIdentifier(identifier: string): Promise<Challenge> {
+
+    if (Types.ObjectId.isValid(identifier)) {
       const challenge = await this.challengeModel
-        .findById(id)
+        .findById(identifier)
         .populate('category')
         .exec();
 
       if (!challenge) {
-        throw new NotFoundException(`Challenge with ID ${id} not found`);
+        throw new NotFoundException(`Challenge with ID ${identifier} not found`);
       }
 
       return challenge;
-    } catch (error) {
-      throw new Error(`Error finding challenge: ${error.message}`);
+
+    }else {
+      const challenge = await this.challengeModel
+        .findOne({ slug: identifier })
+        .populate('category')
+        .exec();
+
+      if (!challenge) {
+        throw new NotFoundException(`Challenge with Slug ${identifier} not found`);
+      }
+
+      return challenge;
+
     }
+
   }
 
   async update(id: string, updateDto: UpdateChallengeDto): Promise<Challenge> {

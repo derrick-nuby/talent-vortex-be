@@ -36,10 +36,10 @@ export class ChallengeController {
   }
 
 
-  @Get(':id')
-  @ApiOperation({ summary: 'Get a challenge by ID' })
-  async getChallengeById(@Param('id', ParseObjectIdPipe) id: string): Promise<Challenge> {
-    return this.challengeService.findById(id);
+  @Get(':identifier')
+  @ApiOperation({ summary: 'Get a challenge by ID or slug' })
+  async getChallengeById(@Param('identifier') identifier: string): Promise<Challenge> {
+    return this.challengeService.findByIdentifier(identifier);
   }
 
   @Put(':id')
