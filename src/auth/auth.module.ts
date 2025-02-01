@@ -9,6 +9,7 @@ import { MailModule } from "../mail/mail.module";
 import { JwtAuthGuard } from "./guards/jwt.auth.guard";
 import { JwtStrategy } from "./strategies/jwt.strategy";
 import { RolesGuard } from "./guards/roles.guard";
+import { UserModule } from '../user/user.module';
 
 @Module({
   imports: [
@@ -28,7 +29,8 @@ import { RolesGuard } from "./guards/roles.guard";
         };
       }
     }),
-    MailModule
+    MailModule,
+    UserModule
   ],
   providers: [AuthService, JwtAuthGuard, JwtStrategy, RolesGuard],
   controllers: [AuthController],
