@@ -1,9 +1,9 @@
-import { ConflictException, Injectable, NotFoundException } from "@nestjs/common";
-import { InjectModel } from "@nestjs/mongoose";
-import { Model } from "mongoose";
-import { Category } from "./schemas/category.schema";
-import CreateCategoryDto from "./dto/create-category.dto";
-import UpdateCategoryDto from "./dto/update-category.dto";
+import { ConflictException, Injectable, NotFoundException } from '@nestjs/common';
+import { InjectModel } from '@nestjs/mongoose';
+import { Model, Types } from 'mongoose';
+import { Category } from './schemas/category.schema';
+import CreateCategoryDto from './dto/create-category.dto';
+import UpdateCategoryDto from './dto/update-category.dto';
 import { generateSlug } from '../utils';
 
 @Injectable()
@@ -37,14 +37,22 @@ export class CategoryService {
       .select('-__v');
   }
 
-  async findOne(id: string): Promise<Category> {
-    const category = await this.categoryModel.findById(id).exec();
+  async findByIdentifier(identifier: string): Promise<Category> {
+    if(Types.ObjectId.isValid(identifier)) {
+      const category = await this.categoryModel.findById(identifier).exec();
+      if (!category) {
+        throw new NotFoundException(`Category with id ${identifier} not found`);
+      }
 
-    if (!category) {
-      throw new NotFoundException('Category not found');
+      return category
+    } else {
+      const category = await this.categoryModel.findOne({ slug: identifier }).exec();
+      if (!category) {
+        throw new NotFoundException(`Category with slug ${identifier} not found`);
+      }
+
+      return category;
     }
-
-    return category;
   }
 
   async update(id: string, updateCategoryDto: UpdateCategoryDto): Promise<Category> {
