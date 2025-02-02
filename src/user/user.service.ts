@@ -1,14 +1,14 @@
-import { BadRequestException, Injectable, NotFoundException } from "@nestjs/common";
-import { CreateUserDto } from "./dto/create-user.dto";
-import { UpdateUserDto } from "./dto/update-user.dto";
-import { InjectModel } from "@nestjs/mongoose";
-import { User } from "./schemas/user.schema";
-import { Model, PipelineStage } from "mongoose";
-import * as bcrypt from "bcrypt";
-import { v4 as uuidV4 } from "uuid";
-import { MailService } from "../mail/mail.service";
-import { encrypt } from "../utils/crypto.util";
-import { QueryUserDto, SortOrder, UserSortField } from "./dto/query-user.dto";
+import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
+import { CreateUserDto } from './dto/create-user.dto';
+import { UpdateUserDto } from './dto/update-user.dto';
+import { InjectModel } from '@nestjs/mongoose';
+import { User } from './schemas/user.schema';
+import { Model, PipelineStage } from 'mongoose';
+import * as bcrypt from 'bcrypt';
+import { v4 as uuidV4 } from 'uuid';
+import { MailService } from '../mail/mail.service';
+import { decrypt, encrypt } from '../utils/crypto.util';
+import { QueryUserDto, SortOrder, UserSortField } from './dto/query-user.dto';
 
 @Injectable()
 export class UserService {
@@ -20,28 +20,27 @@ export class UserService {
   ) {}
 
   async create(createUserDto: CreateUserDto) {
-    const saltRounds = 10;
-    const hashedPassword = await bcrypt.hash(createUserDto.password, saltRounds);
-
-    const verificationToken = uuidV4();
-    const encryptedToken = encrypt(verificationToken);
-
     try {
       const existingUser = await this.userModel.findOne({ email: createUserDto.email }).exec();
       if (existingUser) {
         throw new BadRequestException('Email is already registered');
       }
 
+      const passwordCreationToken = uuidV4();
+      const passwordCreationTokenExpires = new Date(Date.now() + 24 * 60 * 60 * 1000); //24 hours
+
       const user = await this.userModel.create({
         ...createUserDto,
-        password: hashedPassword,
-        verificationToken,
+        passwordCreationToken,
+        passwordCreationTokenExpires,
       });
 
-      await this.mailService.sendVerificationEmail
-      (user.email,
-        user.firstName,
-        encryptedToken
+      const encryptedToken = encrypt(passwordCreationToken);
+
+      await this.mailService.sendPasswordCreatingEmail(
+        user.email,
+        user.firstName + user.lastName,
+        encryptedToken,
       );
 
       return {
@@ -50,10 +49,32 @@ export class UserService {
         email: user.email,
       };
 
-    }catch (error) {
+    } catch (error) {
       throw new BadRequestException(`${error.message}`);
     }
+  }
 
+  async createPassword(token: string, password: string) {
+
+    const decryptedToken = decrypt(token);
+
+    const user = await this.userModel.findOne({
+      passwordCreationToken: decryptedToken,
+      passwordCreationTokenExpires: { $gt: new Date() },
+    }).exec();
+
+    if (!user) {
+      throw new BadRequestException('Invalid or expired token');
+    }
+
+    const saltRounds = 10;
+    user.password = await bcrypt.hash(password, saltRounds);
+    user.passwordCreationToken = undefined;
+    user.passwordCreationTokenExpires = undefined;
+    user.isVerified = true;
+    await user.save();
+
+    return { message: 'Password created successfully' };
   }
 
   async findAll(queryDto: QueryUserDto) {

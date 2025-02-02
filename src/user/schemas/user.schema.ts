@@ -15,7 +15,7 @@ export class User extends Document {
   @Prop({ required: true, unique: true })
   email: string
 
-  @Prop({ required: true })
+  @Prop({ default: "" })
   password: string
 
   @Prop({
@@ -30,6 +30,12 @@ export class User extends Document {
 
   @Prop()
   verificationToken: string
+
+  @Prop()
+  passwordCreationToken: string;
+
+  @Prop()
+  passwordCreationTokenExpires: Date;
 
 }
 

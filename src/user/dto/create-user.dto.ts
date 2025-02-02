@@ -40,14 +40,4 @@ export class CreateUserDto {
   @IsEnum(UserRole, { message: 'Invalid user role' })
   role: string
 
-  @ApiProperty({
-    description: 'The password of the user',
-    example: 'Pa$$word123@#',
-    minLength: 8
-  })
-  @IsString()
-  @IsNotEmpty()
-  @MinLength(8, { message: 'Password must be at least 8 characters long' })
-  password: string
-
 }
