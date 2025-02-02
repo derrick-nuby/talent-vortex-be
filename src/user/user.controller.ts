@@ -8,6 +8,7 @@ import { JwtAuthGuard } from "../auth/guards/jwt.auth.guard";
 import { Roles } from "../auth/decorators/roles.decorator";
 import { RolesGuard } from "../auth/guards/roles.guard";
 import { QueryUserDto } from "./dto/query-user.dto";
+import { CreatePasswordDto } from './dto/create-password.dto';
 
 @ApiTags('Users')
 @Controller('users')
@@ -15,9 +16,9 @@ export class UserController {
   constructor(private readonly userService: UserService) {}
 
   @Get('roles')
-  @ApiBearerAuth()
-  @Roles(UserRole.ADMIN)
-  @UseGuards(JwtAuthGuard, RolesGuard)
+  // @ApiBearerAuth()
+  // @Roles(UserRole.ADMIN)
+  // @UseGuards(JwtAuthGuard, RolesGuard)
   @ApiOperation({ summary: 'Get all available roles assignable to users' })
   getRoles() {
     return {
@@ -26,19 +27,28 @@ export class UserController {
   }
 
   @Post()
-  @ApiBearerAuth()
+  // @ApiBearerAuth()
   @ApiOperation({ summary: 'Create a new user' })
-  @Roles(UserRole.ADMIN, UserRole.SUB_ADMIN)
-  @UseGuards(JwtAuthGuard, RolesGuard)
+  // @Roles(UserRole.ADMIN, UserRole.SUB_ADMIN)
+  // @UseGuards(JwtAuthGuard, RolesGuard)
   @ApiResponse({ status: 201, description: 'User created successfully' })
   async create(
     @Body() createUserDto: CreateUserDto
   ) {
     const user = await this.userService.create(createUserDto)
     return {
-      message: 'User registered successfully',
+      message: 'User created, Password creation link sent',
       user: user,
     };
+  }
+
+  @Post('create-password')
+  @ApiOperation({ summary: 'Create a password for created user' })
+  @ApiResponse({ status: 200, description: 'Password created successfully' })
+  async createPassword(@Body() createPasswordDto: CreatePasswordDto) {
+    const { token, password } = createPasswordDto;
+    await this.userService.createPassword(token, password);
+    return { message: 'Password created successfully' };
   }
 
   @Get()
