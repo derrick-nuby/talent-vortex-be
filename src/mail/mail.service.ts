@@ -31,4 +31,24 @@ export class MailService {
 
   }
 
+  async sendPasswordCreatingEmail(email:string, names: string, token: string) {
+    try {
+      const frontendUrl = this.configService.get<string>('FRONTEND_URL');
+      const passwordCreationLink = `${frontendUrl}/create-password?token=${token}`;
+
+      await this.mailerService.sendMail({
+        to: email,
+        subject: 'Create password',
+        template: './create-password',
+        context: {
+          name: names,
+          passwordCreationLink: passwordCreationLink
+        }
+      })
+
+    } catch (error) {
+      console.log('Error sending email', error);
+    }
+  }
+
 }
