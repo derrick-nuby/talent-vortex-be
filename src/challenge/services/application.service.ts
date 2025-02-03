@@ -2,10 +2,10 @@ import { BadRequestException, Injectable, NotFoundException } from '@nestjs/comm
 import { ChallengeService } from '../challenge.service';
 import { User } from '../../user/schemas/user.schema';
 import { ApplyChallengeDto } from '../dto/apply-challenge.dto';
-import { Application, ApplicationType } from '../schemas/application.schema';
+import { Application, ApplicationType, TeamMember } from '../schemas/application.schema';
 import { InjectModel } from '@nestjs/mongoose';
 import { Challenge } from '../schemas/challenge.schema';
-import { Model } from 'mongoose';
+import { Model, Types } from 'mongoose';
 import { ChallengeStatus } from '../enums/ChallengeStatus';
 import { ApplicationStatus } from '../enums/ApplicationStatus';
 import { UserService } from '../../user/user.service';
@@ -13,6 +13,8 @@ import { TeamMemberStatus } from '../enums/TeamMemberStatus';
 import { ChallengeType } from '../enums/ChallengeType';
 import { v4 as uuidV4 } from 'uuid';
 import { MailService } from '../../mail/mail.service';
+import { QueryParticipantsDto } from '../dto/query-participants.dto';
+import { Participant } from '../inferfaces/participant.interface';
 
 
 @Injectable()
@@ -161,12 +163,12 @@ export class ApplicationService {
     }
   }
 
-  private async handleApplicationRejection(application: Application): Promise<void> {
+  private async handleApplicationRejection(application: Application, teamMember: TeamMember): Promise<void> {
 
     await this.mailService.sendRejectionEmail(
       application.applicant.email,
       application.challenge.title,
-      "A team member has declined the invitation"
+      `A team member ${teamMember.email} has declined the invitation`
     )
 
     await application.deleteOne();
@@ -177,7 +179,7 @@ export class ApplicationService {
     const application = await this.applicationModel.findOne({
       'teamMembers.token': token,
       'teamMembers.tokenExpiresAt': { $gt: new Date() }
-    }).exec();
+    }).populate('applicant').exec();
 
     if (!application) {
       throw new BadRequestException('Invalid or expired invitation');
@@ -196,12 +198,107 @@ export class ApplicationService {
 
     if (!accept) {
 
-      await this.handleApplicationRejection(application);
+      await this.handleApplicationRejection(application, teamMember);
       return;
     }
 
     await application.save();
     await this.checkApplicationStatus(application);
+  }
+
+  async getChallengeParticipants(
+    challengeId: string,
+    queryDto: QueryParticipantsDto
+  ): Promise<{ data: Participant[], total: number, page: number, pages: number }> {
+    const { page = 1, limit = 10 } = queryDto;
+    const skip = (page - 1) * limit;
+
+    const aggregationPipeline = [
+      // Match applications for this challenge that are accepted
+      {
+        $match: {
+          challenge: new Types.ObjectId(challengeId),
+          status: ApplicationStatus.ACCEPTED
+        }
+      },
+      // Lookup applicant (team leader) details
+      {
+        $lookup: {
+          from: 'users',
+          localField: 'applicant',
+          foreignField: '_id',
+          as: 'applicant'
+        }
+      },
+      { $unwind: '$applicant' },
+      // For team applications, lookup team members
+      {
+        $lookup: {
+          from: 'users',
+          localField: 'teamMembers.user',
+          foreignField: '_id',
+          as: 'teamMembersDetails'
+        }
+      },
+      // Create separate documents for team leader and members
+      {
+        $project: {
+          participants: {
+            $concatArrays: [
+              [{
+                firstName: '$applicant.firstName',
+                lastName: '$applicant.lastName',
+                email: '$applicant.email',
+                role: 'TEAM_LEADER'
+              }],
+              {
+                $cond: {
+                  if: { $eq: ['$type', ApplicationType.TEAM] },
+                  then: {
+                    $map: {
+                      input: '$teamMembersDetails',
+                      as: 'member',
+                      in: {
+                        firstName: '$$member.firstName',
+                        lastName: '$$member.lastName',
+                        email: '$$member.email',
+                        role: 'TEAM_MEMBER'
+                      }
+                    }
+                  },
+                  else: []
+                }
+              }
+            ]
+          }
+        }
+      },
+      // Unwind the participants array
+      { $unwind: '$participants' },
+      // Group all participants together
+      {
+        $facet: {
+          metadata: [{ $count: 'total' }],
+          data: [
+            { $skip: skip },
+            { $limit: limit },
+            { $replaceRoot: { newRoot: '$participants' } }
+          ]
+        }
+      }
+    ];
+
+    const [result] = await this.applicationModel.aggregate(aggregationPipeline);
+
+    const total = result.metadata[0]?.total || 0;
+    const pages = Math.ceil(total / limit);
+
+    return {
+      data: result.data || [],
+      total,
+      page,
+      pages
+    };
   }
 
 }
