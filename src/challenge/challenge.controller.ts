@@ -23,6 +23,7 @@ import { CacheTTL } from '@nestjs/common/cache';
 import { ApplyChallengeDto } from './dto/apply-challenge.dto';
 import { ApplicationService } from './services/application.service';
 import { JwtAuthGuard } from '../auth/guards/jwt.auth.guard';
+import { QueryParticipantsDto } from './dto/query-participants.dto';
 
 @ApiTags('Challenges')
 @Controller('challenges')
@@ -86,6 +87,15 @@ export class ChallengeController {
   ) {
     const { id  } = req.user
     return this.applicationService.applyToChallenge(id, challengeId, applyDto);
+  }
+
+  @Get(':id/participants')
+  @ApiOperation({ summary: 'Get paginated list of challenge participants' })
+  async getChallengeParticipants(
+    @Param('id', ParseObjectIdPipe) challengeId: string,
+    @Query() queryDto: QueryParticipantsDto
+  ) {
+    return this.applicationService.getChallengeParticipants(challengeId, queryDto);
   }
 
 }
