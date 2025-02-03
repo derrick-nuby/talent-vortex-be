@@ -23,16 +23,6 @@ export class ChallengeService {
     if (!Types.ObjectId.isValid(challengeDto.category)) {
       throw new BadRequestException(`Invalid category ID: ${challengeDto.category}`);
     }
-    
-    const applicationForm = await this.formModel.findById(challengeDto.applicationForm).exec();
-    if(!applicationForm) {
-      throw new NotFoundException(`Application form with id ${challengeDto.applicationForm} does not exist`)
-    }
-
-    const submissionForm = await this.formModel.findById(challengeDto.submissionForm).exec();
-    if(!submissionForm) {
-      throw new NotFoundException(`Submission form with id ${challengeDto.submissionForm} does not exist`)
-    }
 
     const category = await this.categoryModel.findById(challengeDto.category).exec();
     if(!category) {

@@ -2,15 +2,16 @@ import {
   ArrayMinSize,
   IsArray,
   IsDate,
-  IsEmail,
+  IsEmail, IsEnum,
   IsMongoId,
-  IsNotEmpty,
-  IsString,
+  IsNotEmpty, IsNumber,
+  IsString, Min, ValidateIf,
   ValidateNested,
 } from 'class-validator';
 import { Type } from "class-transformer";
 import { ApiProperty } from "@nestjs/swagger";
 import { PrizeDto } from "./prize.dto";
+import { ChallengeType } from '../enums/ChallengeType';
 
 export class CreateChallengeDto {
 
@@ -92,6 +93,24 @@ export class CreateChallengeDto {
   @Type(() => Date)
   endDate: Date;
 
+  @ApiProperty({
+    enum: ChallengeType,
+    example: ChallengeType.INDIVIDUAL,
+    description: 'Type of challenge (individual or team)'
+  })
+  @IsEnum(ChallengeType)
+  type: ChallengeType;
+
+  @ApiProperty({
+    example: 3,
+    description: 'Required team size (only for team challenges)',
+    required: false
+  })
+  @ValidateIf(o => o.type === ChallengeType.TEAM)
+  @IsNumber()
+  @Min(2)
+  teamSize?: number;
+
 
   @ApiProperty({
     example: '64f8a1b2e4b0f5a3d8f8f8f8',
@@ -101,23 +120,4 @@ export class CreateChallengeDto {
   @IsNotEmpty()
   @IsMongoId({ message: 'Invalid MongoDB ID for category' })
   category: string;
-
-  @ApiProperty({
-    example: '64f8a1b2e4b0f5a3d8f8f8f9',
-    description: 'The ID of the application form for the challenge',
-  })
-  @IsString()
-  @IsNotEmpty()
-  @IsMongoId({ message: 'Invalid MongoDB ID for application form' })
-  applicationForm: string;
-
-  @ApiProperty({
-    example: '64f8a1b2e4b0f5a3d8f8f8fa',
-    description: 'The ID of the submission form for the challenge',
-  })
-  @IsString()
-  @IsNotEmpty()
-  @IsMongoId({ message: 'Invalid MongoDB ID for submission form' })
-  submissionForm: string;
-
 }
