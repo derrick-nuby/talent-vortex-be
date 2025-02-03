@@ -19,6 +19,7 @@ async function bootstrap() {
     .addTag('Challenge categories')
     .addTag('Forms')
     .addTag('Challenges')
+    .addTag('Team Invitations')
     .addTag('Challenge Analytics')
     .addTag('Users')
     .addTag('Authentication')
