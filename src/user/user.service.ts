@@ -159,4 +159,8 @@ export class UserService {
     }
   }
 
+  async findByEmails(emails: string[]): Promise<User[]> {
+    return this.userModel.find({ email: { $in: emails } });
+  }
+
 }
