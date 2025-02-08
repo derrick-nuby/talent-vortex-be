@@ -15,6 +15,9 @@ import { User, UserSchema } from '../user/schemas/user.schema';
 import { MailModule } from '../mail/mail.module';
 import { UserModule } from '../user/user.module';
 import { TeamInvitationController } from './team-invitation.controller';
+import { SubmissionController } from './submission.controller';
+import { Submission, SubmissionSchema } from './schemas/submission.schema';
+import { SubmissionService } from './submission.service';
 
 @Module({
   imports: [
@@ -26,10 +29,11 @@ import { TeamInvitationController } from './team-invitation.controller';
       { name: Category.name, schema: CategorySchema },
       { name: Form.name, schema: FormSchema },
       { name: User.name, schema: UserSchema },
-      { name: Application.name, schema: ApplicationSchema, }
+      { name: Application.name, schema: ApplicationSchema },
+      { name: Submission.name, schema: SubmissionSchema }
     ]),
   ],
-  providers: [ChallengeService, ParseObjectIdPipe, AnalyticsService, ApplicationService],
-  controllers: [ChallengeController, AnalyticsController, TeamInvitationController]
+  providers: [ChallengeService, ParseObjectIdPipe, AnalyticsService, ApplicationService, SubmissionService],
+  controllers: [ChallengeController, AnalyticsController, TeamInvitationController, SubmissionController]
 })
 export class ChallengeModule {}
